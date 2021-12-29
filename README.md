@@ -68,3 +68,60 @@ $ git add file1.txt
 $ git add file2.txt file3.txt
 $ git commit -m "add 3 files."
 ```
+
+-----
+
+#### 时光穿梭机
+
+`git status`命令可以让我们时刻掌握仓库当前的状态，上面的命令输出告诉我们，`readme.txt`被修改过了，但还没有准备提交的修改。 
+
+ `git diff`顾名思义就是查看difference，显示的格式正是Unix通用的diff格式，可以从上面的命令输出看到，我们在第一行添加了一个`distributed`单词。 
+
+ `git log`命令显示从最近到最远的提交日志，我们可以看到3次提交，最近的一次是`*****`，上一次是`******`，最早的一次是`******`。  如果嫌输出信息太多，看得眼花缭乱的，可以试试加上`--pretty=oneline`参数。
+
+好了，现在我们启动时光穿梭机，准备把`readme.txt`回退到上一个版本，也就是`add distributed`的那个版本，怎么做呢？
+
+首先，Git必须知道当前版本是哪个版本，在Git中，用`HEAD`表示当前版本，也就是最新的提交`1094adb...`（注意我的提交ID和你的肯定不一样），上一个版本就是`HEAD^`，上上一个版本就是`HEAD^^`，当然往上100个版本写100个`^`比较容易数不过来，所以写成`HEAD~100`。
+
+现在，我们要把当前版本`append GPL`回退到上一个版本`add distributed`，就可以使用`git reset`命令：
+
+```
+$ git reset --hard HEAD^
+HEAD is now at e475afc add distributed
+```
+
+`git checkout -- file`可以丢弃工作区的修改：
+
+```
+$ git checkout -- readme.txt
+```
+
+命令`git checkout -- readme.txt`意思就是，把`readme.txt`文件在工作区的修改全部撤销，这里有两种情况：
+
+一种是`readme.txt`自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；
+
+一种是`readme.txt`已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。
+
+总之，就是让这个文件回到最近一次`git commit`或`git add`时的状态。
+
+ Git同样告诉我们，用命令`git reset HEAD `可以把暂存区的修改撤销掉（unstage），重新放回工作区： 
+
+ 现在你有两个选择，一是确实要从版本库中删除该文件，那就用命令`git rm`删掉，并且`git commit`：
+
+```
+$ git checkout -- test.txt
+```
+
+`git checkout`其实是用版本库里的版本替换工作区的版本，无论工作区是修改还是删除，都可以“一键还原”。 
+
+**小结**
+
+- 要随时掌握工作区的状态，使用`git status`命令。
+- 如果`git status`告诉你有文件被修改过，用`git diff`可以查看修改内容。
+
+现在总结一下。
+
+- `HEAD`指向的版本就是当前版本，因此，Git允许我们在版本的历史之间穿梭，使用命令`git reset --hard commit_id`。
+- 穿梭前，用`git log`可以查看提交历史，以便确定要回退到哪个版本。
+- 要重返未来，用`git reflog`查看命令历史，以便确定要回到未来的哪个版本。
+
